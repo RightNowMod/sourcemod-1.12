@@ -339,6 +339,7 @@ void UTIL_ConsolePrint(const char *fmt, ...)
 	va_end(ap);
 }
 
+/**
 #if SOURCE_ENGINE == SE_LEFT4DEAD
 #define GAMEFIX "2.l4d"
 #elif SOURCE_ENGINE == SE_LEFT4DEAD2
@@ -387,7 +388,9 @@ void UTIL_ConsolePrint(const char *fmt, ...)
 #define GAMEFIX "2.mock"
 #else
 #define GAMEFIX "2.ep1"
-#endif
+#endif */
+
+#define GAMEFIX "2.css"
 
 static ServerGlobals serverGlobals;
 
@@ -437,19 +440,25 @@ bool CoreProviderImpl::GetCvarBool(ConVar* cvar)
 
 bool CoreProviderImpl::GetGameName(char *buffer, size_t maxlength)
 {
+	// printf("[SM-]DoesGameMatch: %s", "23123");
+	UTIL_ConsolePrint("[SM-]CoreProviderImpl::GetGameName");
 	KeyValues *pGameInfo = new KeyValues("GameInfo");
 	if (g_HL2.KVLoadFromFile(pGameInfo, basefilesystem, "gameinfo.txt"))
 	{
-		const char *str;
-		if ((str = pGameInfo->GetString("game", NULL)) != NULL)
+		const char *str = "cstrike";
+		ke::SafeStrcpy(buffer, maxlength, str);
+		//pGameInfo->deleteThis();
+		/**if ((str = pGameInfo->GetString("game", NULL)) != NULL)
 		{
 			ke::SafeStrcpy(buffer, maxlength, str);
 			pGameInfo->deleteThis();
+			UTIL_ConsolePrint("[SM-]CoreProviderImpl::GetGameName success: %s", buffer);
 			return true;
-		}
+		}**/
 	}
+	UTIL_ConsolePrint("[SM-]CoreProviderImpl::GetGameName failed: %s", buffer);
 	pGameInfo->deleteThis();
-	return false;
+	return true;
 }
 
 const char *CoreProviderImpl::GetGameDescription()
@@ -459,6 +468,7 @@ const char *CoreProviderImpl::GetGameDescription()
 
 const char *CoreProviderImpl::GetSourceEngineName()
 {
+	return "css";
 #if !defined SOURCE_ENGINE
 # error "Unknown engine type"
 #endif

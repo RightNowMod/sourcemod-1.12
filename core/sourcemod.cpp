@@ -176,6 +176,8 @@ bool SourceModBase::InitializeSourceMod(char *error, size_t maxlength, bool late
 {
 	const char *gamepath = g_SMAPI->GetBaseDir();
 
+	// logger->LogError("InitializeSourceMod!");
+
 	/* Store full path to game */
 	g_BaseDir.assign(gamepath);
 

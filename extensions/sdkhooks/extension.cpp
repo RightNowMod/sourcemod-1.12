@@ -313,7 +313,8 @@ void SDKHooks::SDK_OnAllLoaded()
 
 	if (!g_pBinTools)
 	{
-		g_pSM->LogError(myself, "Could not find interface: " SMINTERFACE_BINTOOLS_NAME);
+		g_pSM->LogError(myself, "SDK_OnAllLoaded Could not find interface: " SMINTERFACE_BINTOOLS_NAME);
+		g_pSM->LogError(myself, "I am cxk" SMINTERFACE_BINTOOLS_NAME);
 		return;
 	}
 

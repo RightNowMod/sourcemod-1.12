@@ -67,6 +67,7 @@ ConVar sourcemod_version("sourcemod_version", SOURCEMOD_VERSION, FCVAR_SPONLY|FC
 
 bool SourceMod_Core::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, bool late)
 {
+	
 	PLUGIN_SAVEVARS();
 
 	GET_V_IFACE_ANY(GetServerFactory, gamedll, IServerGameDLL, INTERFACEVERSION_SERVERGAMEDLL);

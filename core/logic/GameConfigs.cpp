@@ -108,14 +108,18 @@ struct TempSigInfo
 
 static bool DoesGameMatch(const char *value)
 {
+	logger->LogError("[SM-]DoesGameMatch: %s g_Game: %s", value,g_Game);
+
 #if defined PLATFORM_WINDOWS
 	if (strcasecmp(value, g_Game) == 0 ||
 #else
 	if (strcmp(value, g_Game) == 0 ||
 #endif
 		strcmp(value, g_GameDesc) == 0 ||
+		strcmp(value, "cstrike") == 0 ||
 		strcmp(value, g_GameName) == 0)
 	{
+		logger->LogError("[SM-]DoesGameMatch: true!");
 		return true;
 	}
 	return false;
@@ -533,7 +537,9 @@ SMCResult CGameConfig::ReadSMC_LeavingSection(const SMCStates *states)
 			/* Parse the offset... */
 			if (!m_Class.empty() && !m_Prop.empty())
 			{
+				logger->LogError("FindInSendTable %s,%s",m_Class.c_str(), m_Prop.c_str());
 				SendProp *pProp = gamehelpers->FindInSendTable(m_Class.c_str(), m_Prop.c_str());
+
 				if (pProp)
 				{
 					int val = gamehelpers->GetSendPropOffset(pProp);
@@ -830,6 +836,7 @@ bool CGameConfig::Reparse(char *error, size_t maxlength)
 
 	/* See if we can use the extended gamedata format. */
 	g_pSM->BuildPath(Path_SM, path, sizeof(path), "gamedata/%s/master.games.txt", m_File);
+	logger->LogError("CGameConfig::Reparse path: %s", path);
 	if (!libsys->PathExists(path))
 	{
 		/* Nope, use the old mechanism. */
@@ -945,6 +952,8 @@ bool CGameConfig::EnterFile(const char *file, char *error, size_t maxlength)
 
 	g_pSM->BuildPath(Path_SM, m_CurFile, sizeof(m_CurFile), "gamedata/%s", file);
 
+	logger->LogError("CGameConfig::EnterFile file: %s", file);
+
 	/* Initialize parse states */
 	m_IgnoreLevel = 0;
 	bShouldBeReadingDefault = true;
@@ -957,7 +966,7 @@ bool CGameConfig::EnterFile(const char *file, char *error, size_t maxlength)
 		{
 			continue;
 		}
-
+		logger->LogError("CGameConfig::EnterFile pengine: %s", pEngine[iter]);
 		this->SetParseEngine(pEngine[iter]);
 		if ((err=textparsers->ParseSMCFile(m_CurFile, this, &state, error, maxlength))
 			!= SMCError_Okay)
@@ -988,6 +997,7 @@ bool CGameConfig::EnterFile(const char *file, char *error, size_t maxlength)
 
 void CGameConfig::SetBaseEngine(const char *engine)
 {
+	logger->LogError("CGameConfig::SetBaseEngine: %s", engine);
 	m_pBaseEngine = engine;
 }
 
@@ -1127,12 +1137,17 @@ GameConfigManager::~GameConfigManager()
 {
 }
 
+/**
+	load sourcemod !!!
+ */
+
 void GameConfigManager::OnSourceModStartup(bool late)
 {
 	m_gameBinPathManager.Init();
 	
+	
 	LoadGameConfigFile("core.games", &g_pGameConf, NULL, 0);
-
+	logger->LogError("[SM-] GetGameFolderName: %s", g_pSM->GetGameFolderName());
 	strncopy(g_Game, g_pSM->GetGameFolderName(), sizeof(g_Game));
 	strncopy(g_GameDesc + 1, bridge->GetGameDescription(), sizeof(g_GameDesc) - 1);
 	bridge->GetGameName(g_GameName + 1, sizeof(g_GameName) - 1);
@@ -1147,6 +1162,7 @@ void GameConfigManager::OnSourceModAllInitialized()
 	if (!pGameConf->Reparse(error, sizeof(error)))
 	{
 		/* :TODO: log */
+		logger->LogError("OnSourceModAllInitialized error: %s", error);
 	}
 
 	sharesys->AddInterface(NULL, this);

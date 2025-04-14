@@ -319,31 +319,51 @@ IChangeInfoAccessor *CBaseEdict::GetChangeAccessor()
 #endif
 
 bool UTIL_FindInSendTable(SendTable *pTable, 
-						  const char *name,
+						  const char *name,  // 变量名称，如 "m_lifeState"
 						  sm_sendprop_info_t *info,
 						  unsigned int offset)
 {
+	logger->LogError("UTIL_FindInSendTable property name we want to find:%s", name);
 	int props = pTable->GetNumProps();
+	logger->LogError("UTIL_FindInSendTable property total count:%d", props);
 	for (int i = 0; i < props; i++)
 	{
 		SendProp *prop = pTable->GetProp(i);
 
 		// Skip InsideArray props (SendPropArray / SendPropArray2),
 		// we'll find them later by their containing array.
+		/* if (((uintptr_t)prop) > 0x2e000066c3d08948)
+		{
+		
+			logger->LogError("prop is out of size");
+			continue;
+		} */
+		
 		if (prop->IsInsideArray()) {
 			continue;
 		}
-
+		
+		/* if (prop->GetName() == NULL){
+			continue;
+		} */
 		const char *pname = prop->GetName();
-		SendTable *pInnerTable = prop->GetDataTable();
+		if (pname == NULL) {
+			logger->LogError("get true offset of CUtlVector 1 flag:%d, pname is null", prop->GetFlags());
+			continue;
+		}
 
+		SendTable *pInnerTable = prop->GetDataTable();
+		logger->LogError("get true offset of CUtlVector 1 flag:%d, pname: %s", prop->GetFlags(), pname);
 		if (pname && strcmp(name, pname) == 0)
 		{
+			
 			// get true offset of CUtlVector
 			if (utlVecOffsetOffset != -1 && prop->GetOffset() == 0 && pInnerTable && pInnerTable->GetNumProps())
 			{
+				
 				SendProp *pLengthProxy = pInnerTable->GetProp(0);
 				const char *ipname = pLengthProxy->GetName();
+				logger->LogError("get true offset of CUtlVector 2 flag:%d, ipname: %s", prop->GetFlags(), ipname);
 				if (ipname && strcmp(ipname, "lengthproxy") == 0 && pLengthProxy->GetExtraData())
 				{
 					info->prop = prop;
@@ -431,9 +451,11 @@ DataTableInfo *CHalfLife2::_FindServerClass(const char *classname)
 		ServerClass *sc = gamedll->GetAllServerClasses();
 		while (sc)
 		{
+			logger->LogError("_FindServerClass: %s", sc->GetName());
 			if (strcmp(classname, sc->GetName()) == 0)
 			{
 				pInfo = new DataTableInfo(sc);
+				logger->LogError("_FindServerClass: match! %s", sc->GetName());
 				m_Classes.insert(classname, pInfo);
 				break;
 			}
@@ -448,6 +470,7 @@ DataTableInfo *CHalfLife2::_FindServerClass(const char *classname)
 
 bool CHalfLife2::FindSendPropInfo(const char *classname, const char *offset, sm_sendprop_info_t *info)
 {
+	logger->LogError("CHalfLife2::FindSendPropInfo: classname:%s string offset(PropInfo.name): %s", classname, offset);
 	DataTableInfo *pInfo;
 
 	if ((pInfo = _FindServerClass(classname)) == NULL)
@@ -457,15 +480,19 @@ bool CHalfLife2::FindSendPropInfo(const char *classname, const char *offset, sm_
 
 	DataTableInfo::SendPropInfo temp;
 
-	if (!pInfo->lookup.retrieve(offset, &temp))
+	if (!pInfo->lookup.retrieve(offset, &temp)) // read cache if exist
 	{
-		bool found = UTIL_FindInSendTable(pInfo->sc->m_pTable, offset, &temp.info, 0);
+		// sc: serverclass ptr
+		bool found = UTIL_FindInSendTable(pInfo->sc->m_pTable, offset, &temp.info, 0); // crash here
 		temp.name = offset;
 
-		pInfo->lookup.insert(offset, temp);
+		logger->LogError("is propinfo found? %d", found);
+
+		pInfo->lookup.insert(offset, temp); // save to cache
 
 		if (found)
 		{
+			logger->LogError("propinfo found");
 			*info = temp.info;
 		}
 
@@ -1133,13 +1160,15 @@ int CHalfLife2::ReferenceToIndex(cell_t entRef)
 
 cell_t CHalfLife2::EntityToBCompatRef(CBaseEntity *pEntity)
 {
-	if (pEntity == NULL)
+	logger->LogError("CHalfLife2::EntityToBCompatRef(CBaseEntity *pEntity) %p", pEntity);
+	return INVALID_EHANDLE_INDEX;
+	if (pEntity == NULL || reinterpret_cast<uintptr_t>(pEntity) == 0xFFFFFFFF) // 加上这个判断，才不崩溃，这个pEntity获取的值是-1，实体指针获取不了
 	{
 		return INVALID_EHANDLE_INDEX;
 	}
 
 	IServerUnknown *pUnknown = (IServerUnknown *)pEntity;
-	CBaseHandle hndl = pUnknown->GetRefEHandle();
+	CBaseHandle hndl = pUnknown->GetRefEHandle(); // crash
 
 	if (hndl == INVALID_EHANDLE_INDEX)
 	{

@@ -302,6 +302,7 @@ static cell_t GiveNamedItem(IPluginContext *pContext, const cell_t *params)
 // CBaseEntity	*GiveNamedItem( const char *szName, int iSubType = 0 )
 static cell_t GiveNamedItem(IPluginContext *pContext, const cell_t *params)
 {
+	// logger->LogError("GiveNamedItem");
 	static ValveCall *pCall = NULL;
 	if (!pCall)
 	{
