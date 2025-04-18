@@ -38,6 +38,7 @@ class KEConfig(object):
         '-pipe',
         '-Wall',
         '-Werror',
+        '-Wno-reorder-ctor',
       ]
 
       cxx.cflags += ['-fvisibility=hidden']

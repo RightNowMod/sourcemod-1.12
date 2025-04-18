@@ -1220,7 +1220,7 @@ static cell_t smn_TRGetPointContents(IPluginContext *pContext, const cell_t *par
 #if (SOURCE_ENGINE >= SE_LEFT4DEAD || SOURCE_ENGINE == SE_BMS)
 		mask = enginetrace->GetPointContents(pos, MASK_ALL, &hentity);
 #else
-		mask = enginetrace->GetPointContents(pos, &hentity);
+		mask = enginetrace->GetPointContents(pos, MASK_ALL, &hentity); // deepdc fix
 #endif
 		*ent = gamehelpers->EntityToBCompatRef(reinterpret_cast<CBaseEntity *>(hentity));
 	}

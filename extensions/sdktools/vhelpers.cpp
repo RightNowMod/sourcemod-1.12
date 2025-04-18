@@ -209,7 +209,7 @@ bool GetEyeAngles(CBaseEntity *pEntity, QAngle *pAngles)
 	return true;
 }
 
-int GetClientAimTarget(edict_t *pEdict, bool only_players)
+int GetClientAimTarget(edict_t *pEdict, bool only_players)  // crash
 {
 	CBaseEntity *pEntity = pEdict->GetUnknown() ? pEdict->GetUnknown()->GetBaseEntity() : NULL;
 
@@ -241,7 +241,7 @@ int GetClientAimTarget(edict_t *pEdict, bool only_players)
 	trace_t tr;
 	CTraceFilterSimple simple(pEdict->GetIServerEntity());
 
-	enginetrace->TraceRay(ray, MASK_SOLID|CONTENTS_DEBRIS|CONTENTS_HITBOX, &simple, &tr);
+	enginetrace->TraceRay(ray, MASK_SOLID|CONTENTS_DEBRIS|CONTENTS_HITBOX, &simple, &tr); // crash this line
 
 	if (tr.fraction == 1.0f || tr.m_pEnt == NULL)
 	{

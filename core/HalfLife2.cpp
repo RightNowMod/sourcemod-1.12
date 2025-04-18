@@ -1003,8 +1003,12 @@ void CHalfLife2::ServerCommand(const char *buffer)
 
 cell_t CHalfLife2::EntityToReference(CBaseEntity *pEntity)
 {
+	if (!pEntity || (uintptr_t)pEntity < 0x10000000) { // 随便判断了一下
+		logger->LogError("CHalfLife2::EntityToReference(CBaseEntity *pEntity) %p", pEntity);
+		return INVALID_EHANDLE_INDEX; // prevent crash
+	}
 	IServerUnknown *pUnknown = (IServerUnknown *)pEntity;
-	CBaseHandle hndl = pUnknown->GetRefEHandle();
+	CBaseHandle hndl = pUnknown->GetRefEHandle(); // crash
 	return (hndl.ToInt() | (1<<31));
 }
 
@@ -1129,7 +1133,7 @@ int CHalfLife2::ReferenceToIndex(cell_t entRef)
 
 		CEntInfo *pInfo = LookupEntity(hndl.GetEntryIndex());
 
-		if (pInfo->m_SerialNumber != hndl.GetSerialNumber())
+		if (pInfo->m_SerialNumber != hndl.GetSerialNumber()) // crash
 		{
 			return INVALID_EHANDLE_INDEX;
 		}
@@ -1161,8 +1165,8 @@ int CHalfLife2::ReferenceToIndex(cell_t entRef)
 cell_t CHalfLife2::EntityToBCompatRef(CBaseEntity *pEntity)
 {
 	logger->LogError("CHalfLife2::EntityToBCompatRef(CBaseEntity *pEntity) %p", pEntity);
-	return INVALID_EHANDLE_INDEX;
-	if (pEntity == NULL || reinterpret_cast<uintptr_t>(pEntity) == 0xFFFFFFFF) // 加上这个判断，才不崩溃，这个pEntity获取的值是-1，实体指针获取不了
+	// return INVALID_EHANDLE_INDEX;
+	if (pEntity == NULL)// || reinterpret_cast<uintptr_t>(pEntity) == 0xFFFFFFFF) // 加上这个判断，才不崩溃，这个pEntity获取的值是-1，实体指针获取不了
 	{
 		return INVALID_EHANDLE_INDEX;
 	}
@@ -1215,6 +1219,7 @@ int CHalfLife2::GetSendPropOffset(SendProp *prop)
 
 const char *CHalfLife2::GetEntityClassname(edict_t * pEdict)
 {
+	logger->LogError("CHalfLife2::GetEntityClassname");
 	if (pEdict == NULL || pEdict->IsFree())
 	{
 		return NULL;
@@ -1227,6 +1232,7 @@ const char *CHalfLife2::GetEntityClassname(edict_t * pEdict)
 	}
 	
 	CBaseEntity * pEntity = pUnk->GetBaseEntity();
+	logger->LogError("CHalfLife2::GetEntityClassname: pEntity: %p", pEntity);
 	
 	if (pEntity == NULL)
 	{
@@ -1238,10 +1244,12 @@ const char *CHalfLife2::GetEntityClassname(edict_t * pEdict)
 
 const char *CHalfLife2::GetEntityClassname(CBaseEntity *pEntity)
 {
+	logger->LogError("CHalfLife2::GetEntityClassname2");
 	static int offset = -1;
 	if (offset == -1)
 	{
 		CBaseEntity *pGetterEnt = ReferenceToEntity(0);
+		logger->LogError("CHalfLife2::GetEntityClassname: pGetterEnt: %p", pGetterEnt);
 		if (pGetterEnt == NULL)
 		{
 			// If we don't have a world entity yet, we'll have to rely on the given entity

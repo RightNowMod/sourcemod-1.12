@@ -76,8 +76,10 @@ WeaponIDMap g_mapWeaponIDToDefIdx;
 
 CEconItemView *GetEconItemView(CBaseEntity *pEntity, int iSlot)
 {
+	
 	if (!pEntity)
 		return NULL;
+	smutils->LogError(myself, "GetEconItemView");
 
 	static ICallWrapper *pWrapper = NULL;
 	static int thisPtrOffset = -1;

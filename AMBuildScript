@@ -240,6 +240,7 @@ class SMConfig(object):
       '-fno-strict-aliasing',
       '-Wall',
       '-Werror',
+      '-Wno-reorder-ctor',
       '-Wno-unused',
       '-Wno-switch',
       '-Wno-array-bounds',

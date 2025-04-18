@@ -18,6 +18,10 @@ CDetour *CDetourManager::CreateDetour(void *callbackfunction, void **trampoline,
 		g_pSM->LogError(myself, "Signature for %s not found in gamedata", signame);
 		return NULL;
 	}
+	g_pSM->LogError(myself, "CDetourManager::CreateDetour: addr: %p", pAddress);
+	if (!pAddress) {
+		
+	}
 
 	if (!pAddress)
 	{

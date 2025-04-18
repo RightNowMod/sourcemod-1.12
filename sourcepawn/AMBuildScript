@@ -144,6 +144,7 @@ class Config(object):
             '-pipe',
             '-Wall',
             '-Werror',
+            '-Wno-reorder-ctor',
             '-Wno-switch',
         ]
         cxx.cxxflags += ['-std=c++17']

@@ -389,6 +389,8 @@ SMCResult CGameConfig::ReadSMC_NewSection(const SMCStates *states, const char *n
 
 SMCResult CGameConfig::ReadSMC_KeyValue(const SMCStates *states, const char *key, const char *value)
 {
+	logger->LogError("[SM-] ReadSMC_KeyValue: %s, %s", key, value);
+	
 	if (m_IgnoreLevel)
 	{
 		return SMCResult_Continue;
@@ -503,6 +505,7 @@ SMCResult CGameConfig::ReadSMC_LeavingSection(const SMCStates *states)
 		return SMCResult_Continue;
 	}
 
+	logger->LogError("ReadSMC_LeavingSection: m_ParseState: %d", m_ParseState);
 	switch (m_ParseState)
 	{
 	case PSTATE_GAMES:
@@ -534,6 +537,7 @@ SMCResult CGameConfig::ReadSMC_LeavingSection(const SMCStates *states)
 		}
 	case PSTATE_GAMEDEFS_OFFSETS_OFFSET:
 		{
+			logger->LogError("PSTATE_GAMEDEFS_OFFSETS_OFFSET");
 			/* Parse the offset... */
 			if (!m_Class.empty() && !m_Prop.empty())
 			{
@@ -564,6 +568,7 @@ SMCResult CGameConfig::ReadSMC_LeavingSection(const SMCStates *states)
 	case PSTATE_GAMEDEFS_CRC:
 	case PSTATE_GAMEDEFS_SUPPORTED:
 		{
+			logger->LogError("PSTATE_GAMEDEFS_SUPPORTED");
 			if (!bShouldBeReadingDefault)
 			{
 				/* If we shouldn't read the rest of this section, set the ignore level. */
@@ -586,6 +591,7 @@ SMCResult CGameConfig::ReadSMC_LeavingSection(const SMCStates *states)
 		}
 	case PSTATE_GAMEDEFS_SIGNATURES_SIG:
 		{
+			logger->LogError("PSTATE_GAMEDEFS_SUPPORTED");
 			if (s_TempSig.library[0] == '\0')
 			{
 				/* assume server */
@@ -674,6 +680,7 @@ SMCResult CGameConfig::ReadSMC_LeavingSection(const SMCStates *states)
 		}
 	case PSTATE_GAMEDEFS_ADDRESSES_ADDRESS:
 		{
+			logger->LogError("PSTATE_GAMEDEFS_SUPPORTED");
 			m_ParseState = PSTATE_GAMEDEFS_ADDRESSES;
 
 			if (!m_Address.empty() && !m_AddressSignature.empty())
